@@ -6,20 +6,26 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.params.SetParams;
 
 public class DistributedLock {
-    private final String host = "192.168.0.220";
+    private final String host = "192.168.9.81";
     private final int port = 6379;
     private static final String SUCCESS = "OK";
     private static final String SET_IF_NOT_EXIST = "NX";
     private static final String EXPIRE_TIME = "PX";
 
     public DistributedLock() {
-    }    /*     * @param lockName      锁名     * @param timeout       获取锁的超时时间     * @param lockTimeout   锁的有效时间     * @return              锁的标识     */
+    }
 
+    /*
+     * @param lockName      锁名
+     * @param timeout       获取锁的超时时间
+     * @param lockTimeout   锁的有效时间
+     * @return              锁的标识
+     */
     public String getLockWithTimeout(String lockName, long timeout, long lockTimeout) {
         String ret = null;
         Jedis jedisClient = new Jedis(host, port);
         try {
-            String authMsg = jedisClient.auth("******");
+            String authMsg = jedisClient.auth("hw@815GST");
             if (!SUCCESS.equals(authMsg)) {
                 System.out.println("AUTH FAILED: " + authMsg);
             }
@@ -46,12 +52,16 @@ public class DistributedLock {
             jedisClient.close();
         }
         return ret;
-    }    /*     * @param lockName        锁名     * @param identifier    锁的标识     */
+    }
 
+    /*
+     * @param lockName      锁名
+     * @param identifier    锁的标识
+     */
     public void releaseLock(String lockName, String identifier) {
         Jedis jedisClient = new Jedis(host, port);
         try {
-            String authMsg = jedisClient.auth("******");
+            String authMsg = jedisClient.auth("hw@815GST");
             if (!SUCCESS.equals(authMsg)) {
                 System.out.println("AUTH FAILED: " + authMsg);
             }
