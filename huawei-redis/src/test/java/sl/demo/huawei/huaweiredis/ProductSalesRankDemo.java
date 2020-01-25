@@ -13,54 +13,57 @@ public class ProductSalesRankDemo {
     static final int PRODUCT_KINDS = 30;
 
     public static void main(String[] args) {
-        //实例连接地址，从控制台获取
+        // 实例连接地址，从控制台获取
         String host = "192.168.9.81";
-        //Redis端口
+        // Redis端口
         int port = 6379;
         Jedis jedisClient = new Jedis(host, port);
         try {
-            //实例密码
+            // 实例密码
             String authMsg = jedisClient.auth("hw@815GST");
             if (!authMsg.equals("OK")) {
                 System.out.println("AUTH FAILED: " + authMsg);
             }
-            //键分布式缓存服务最佳实践2 使用Redis实现排行榜功能2019-03-206
+            // 键分布式缓存服务最佳实践2 使用Redis实现排行榜功能2019-03-206
 
             String key = "商品热销排行榜";
             jedisClient.del(key);
-            //随机生成产品数据
+            // 随机生成产品数据
             List<String> productList = new ArrayList<>();
             for (int i = 0; i < PRODUCT_KINDS; i++) {
                 productList.add("product-" + UUID.randomUUID().toString());
             }
 
-            //随机生成销量
-            for (int i = 0; i < productList.size(); i++) {
+            // 随机生成销量
+            for (String product : productList) {
                 int sales = (int) (Math.random() * 20000);
-
-                String product = productList.get(i);
-                //插入Redis的SortedSet中
+                // 插入Redis的SortedSet中
                 jedisClient.zadd(key, sales, product);
             }
-            System.out.println();
-            System.out.println("                   " + key);
-            //获取所有列表并按销量顺序输出
+
+//            for (int i = 0; i < productList.size(); i++) {
+//                int sales = (int) (Math.random() * 20000);
+//
+//                String product = productList.get(i);
+//                // 插入Redis的SortedSet中
+//                jedisClient.zadd(key, sales, product);
+//            }
+
+            System.out.println(key);
+            // 获取所有列表并按销量顺序输出
             Set<Tuple> sortedProductList = jedisClient.zrevrangeWithScores(key, 0, -1);
-            for (
-                    Tuple product : sortedProductList) {
+            for (Tuple product : sortedProductList) {
                 System.out.println("产品ID： " + product.getElement() + ", 销量： " + Double.valueOf(product.getScore()).intValue());
             }
             System.out.println();
-            System.out.println("                   " + key);
-            System.out.println("                   前五大热销产品");
-            //获取销量前五列表并输出
+            System.out.println(key);
+            System.out.println("前五大热销产品");
+            // 获取销量前五列表并输出
             Set<Tuple> sortedTopList = jedisClient.zrevrangeWithScores(key, 0, 4);
-            for (
-                    Tuple product : sortedTopList) {
+            for (Tuple product : sortedTopList) {
                 System.out.println("产品ID： " + product.getElement() + ", 销量： " + Double.valueOf(product.getScore()).intValue());
             }
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             jedisClient.quit();
@@ -70,7 +73,7 @@ public class ProductSalesRankDemo {
 }
 
 /*
-                   商品热销排行榜
+商品热销排行榜
 产品ID： product-62605664-1d9d-40ac-bf78-09a18545e07d, 销量： 19131
 产品ID： product-99fef7a9-bbde-4138-bcb0-c17bea01c26f, 销量： 18894
 产品ID： product-afa2b961-b111-479a-9d5e-4f38940e9ca2, 销量： 18461
@@ -102,8 +105,8 @@ public class ProductSalesRankDemo {
 产品ID： product-754863e0-1f88-4238-9738-6e6da8334587, 销量： 2071
 产品ID： product-5da91003-32ea-441f-bb45-f3f02dd3ef11, 销量： 412
 
-                   商品热销排行榜
-                   前五大热销产品
+商品热销排行榜
+前五大热销产品
 产品ID： product-62605664-1d9d-40ac-bf78-09a18545e07d, 销量： 19131
 产品ID： product-99fef7a9-bbde-4138-bcb0-c17bea01c26f, 销量： 18894
 产品ID： product-afa2b961-b111-479a-9d5e-4f38940e9ca2, 销量： 18461
