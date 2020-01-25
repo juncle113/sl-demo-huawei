@@ -41,14 +41,6 @@ public class ProductSalesRankDemo {
                 jedisClient.zadd(key, sales, product);
             }
 
-//            for (int i = 0; i < productList.size(); i++) {
-//                int sales = (int) (Math.random() * 20000);
-//
-//                String product = productList.get(i);
-//                // 插入Redis的SortedSet中
-//                jedisClient.zadd(key, sales, product);
-//            }
-
             System.out.println(key);
             // 获取所有列表并按销量顺序输出
             Set<Tuple> sortedProductList = jedisClient.zrevrangeWithScores(key, 0, -1);
